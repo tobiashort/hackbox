@@ -1,0 +1,113 @@
+---
+- name: Configure Hackbox
+  hosts: all
+
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+
+  vars:
+
+    apt_packages:
+      - kali-desktop-xfce
+      - burpsuite
+      - hydra
+      - impacket-scripts
+      - john
+      - metasploit-framework
+      - netexec
+      - nmap
+      - openvpn
+      - python3-venv
+      - responder
+      - smbmap
+      - sqlmap
+      - tigervnc-standalone-server
+      - tigervnc-xorg-extension
+      - wireshark
+
+    python_packages:
+      - pypykatz
+
+  tasks:
+    - name: Update and upgrade the system
+      apt:
+        update_cache: yes
+        upgrade: full
+
+    - name: Install individual packages
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ apt_packages }}"
+
+    - name: Remove unnecessary packages
+      apt:
+        autoremove: yes
+
+    - name: Create Python virtual environment in /root/python-venv
+      command: python3 -m venv /root/python-venv
+      args:
+        creates: /root/python-venv/bin/activate
+
+    - name: Install packages via pip
+      pip:
+        name: "{{ item }}"
+        virtualenv: /root/python-venv
+        state: present
+      loop: "{{ python_packages }}"
+
+    - name: Configure /etc/hosts file
+      copy:
+        dest: /etc/hosts
+        content: |
+          # /etc/hosts
+          127.0.0.1   kali localhost
+
+          # The following lines are desirable for IPv6 capable hosts
+          ::1         localhost ip6-localhost ip6-loopback
+          ff02::1     ip6-allnodes
+          ff02::2     ip6-allrouters
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Ensure /root/.vnc directory exists
+      file:
+        path: /root/.vnc
+        state: directory
+        mode: '0755'
+
+    - name: Create VNC xstartup file
+      copy:
+        dest: /root/.vnc/xstartup
+        content: |
+          exec startxfce4
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Check if /root/.vnc/passwd exists
+      stat:
+        path: "/root/.vnc/passwd"
+      register: vnc_passwd
+
+    - name: VNC server password prompt
+      pause:
+        prompt: "Enter VNC server password"
+        echo: false
+      when: not vnc_passwd.stat.exists
+      register: vnc_password
+
+    - name: Set VNC server password
+      command: bash -c "echo '{{ vnc_password }}' | vncpasswd -f > /root/.vnc/passwd && chmod 600 /root/.vnc/passwd"
+      when: not vnc_passwd.stat.exists
+
+    - name: Check if port 5901 is listening
+      shell: "ss -tuln | grep ':5901'"
+      ignore_errors: true
+      register: vnc_port_check
+      changed_when: false
+
+    - name: Start VNC server
+      command: vncserver -localhost yes :1
+      when: vnc_port_check.rc != 0
