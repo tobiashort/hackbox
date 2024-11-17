@@ -8,22 +8,28 @@
   vars:
 
     apt_packages:
-      - kali-desktop-xfce
+      - autorecon
+      - binwalk
       - burpsuite
       - hydra
       - impacket-scripts
       - john
+      - kali-desktop-xfce
       - metasploit-framework
       - netexec
       - nmap
+      - nuclei
       - openvpn
+      - python-is-python3
       - python3-venv
       - responder
+      - exploitdb
       - smbmap
       - sqlmap
       - tigervnc-standalone-server
       - tigervnc-xorg-extension
       - wireshark
+      - wordlists
 
     python_packages:
       - pypykatz
@@ -56,6 +62,12 @@
         state: present
       loop: "{{ python_packages }}"
 
+    - name: Unarchive rockyou.txt
+      unarchive:
+        src: /usr/share/seclists/Passwords/Leaked-Databases/rockyou.txt.tar.gz
+        dest: /usr/share/seclists/Passwords/Leaked-Databases/
+        remote_src: yes
+    
     - name: Configure /etc/hosts file
       copy:
         dest: /etc/hosts
@@ -70,7 +82,7 @@
         owner: root
         group: root
         mode: '0644'
-
+      
     - name: Ensure /root/.vnc directory exists
       file:
         path: /root/.vnc
