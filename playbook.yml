@@ -1,5 +1,5 @@
----
 - name: Configure Hackbox
+
   hosts: all
 
   environment:
@@ -82,12 +82,16 @@
         owner: root
         group: root
         mode: '0644'
+      tags:
+        - cloud
       
     - name: Ensure /root/.vnc directory exists
       file:
         path: /root/.vnc
         state: directory
         mode: '0755'
+      tags:
+        - cloud
 
     - name: Create VNC xstartup file
       copy:
@@ -97,11 +101,15 @@
         owner: root
         group: root
         mode: '0755'
+      tags:
+        - cloud
 
     - name: Check if /root/.vnc/passwd exists
       stat:
         path: "/root/.vnc/passwd"
       register: vnc_passwd
+      tags:
+        - cloud
 
     - name: VNC server password prompt
       pause:
@@ -109,17 +117,25 @@
         echo: false
       when: not vnc_passwd.stat.exists
       register: vnc_password
+      tags:
+        - cloud
 
     - name: Set VNC server password
       command: bash -c "echo '{{ vnc_password }}' | vncpasswd -f > /root/.vnc/passwd && chmod 600 /root/.vnc/passwd"
       when: not vnc_passwd.stat.exists
+      tags:
+        - cloud
 
     - name: Check if port 5901 is listening
       shell: "ss -tuln | grep ':5901'"
       ignore_errors: true
       register: vnc_port_check
       changed_when: false
+      tags:
+        - cloud
 
     - name: Start VNC server
       command: vncserver -localhost yes :1
       when: vnc_port_check.rc != 0
+      tags:
+        - cloud
