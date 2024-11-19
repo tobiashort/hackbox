@@ -2,36 +2,36 @@
 
   hosts: all
 
+  become: true
+
   environment:
     DEBIAN_FRONTEND: noninteractive
 
   vars:
 
-    apt_packages:
+    tools_apt_packages:
       - autorecon
       - binwalk
       - burpsuite
       - hydra
       - impacket-scripts
       - john
-      - kali-desktop-xfce
       - metasploit-framework
       - netexec
       - nmap
       - nuclei
       - openvpn
+      - pipx
       - python-is-python3
       - python3-venv
       - responder
       - exploitdb
       - smbmap
       - sqlmap
-      - tigervnc-standalone-server
-      - tigervnc-xorg-extension
       - wireshark
       - wordlists
 
-    python_packages:
+    tools_pipx_packages:
       - pypykatz
 
   tasks:
@@ -39,34 +39,56 @@
       apt:
         update_cache: yes
         upgrade: full
-
-    - name: Install individual packages
-      apt:
-        name: "{{ item }}"
-        state: present
-      loop: "{{ apt_packages }}"
+      tags:
+        - system
 
     - name: Remove unnecessary packages
       apt:
         autoremove: yes
+      tags:
+        - system
 
-    - name: Create Python virtual environment in /root/python-venv
-      command: python3 -m venv /root/python-venv
-      args:
-        creates: /root/python-venv/bin/activate
-
-    - name: Install packages via pip
-      pip:
+    - name: Install desktop
+      apt:
+        name: kali-desktop-xfce
+        state: latest
+      tags:
+        - desktop
+        
+    - name: Install tools apt packages
+      apt:
         name: "{{ item }}"
-        virtualenv: /root/python-venv
-        state: present
-      loop: "{{ python_packages }}"
+        state: latest
+      loop: "{{ tools_apt_packages }}"
+      tags:
+        - tools
+
+    - name: Install tools pipx packages
+      community.general.pipx:
+        executable: /usr/bin/pipx
+        global: true
+        state: latest
+        name: "{{ item }}"
+      loop: "{{ tools_pipx_packages }}"
+      tags:
+        - tools
 
     - name: Unarchive rockyou.txt
       unarchive:
         src: /usr/share/seclists/Passwords/Leaked-Databases/rockyou.txt.tar.gz
         dest: /usr/share/seclists/Passwords/Leaked-Databases/
         remote_src: yes
+      tags:
+        - tools
+
+    - name: Install VNC
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - tigervnc-standalone-server
+        - tigervnc-xorg-extension
+      tags: cloud
     
     - name: Configure /etc/hosts file
       copy:
