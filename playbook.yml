@@ -13,6 +13,8 @@
       - autorecon
       - binwalk
       - burpsuite
+      - cadaver
+      - davtest
       - hydra
       - impacket-scripts
       - john
@@ -33,6 +35,7 @@
 
     tools_pipx_packages:
       - pypykatz
+      - wesng
 
   tasks:
     - name: Update and upgrade the system
@@ -107,9 +110,9 @@
       tags:
         - cloud
       
-    - name: Ensure /root/.vnc directory exists
+    - name: Ensure /root/.config/tigervnc directory exists
       file:
-        path: /root/.vnc
+        path: /root/.config/tigervnc
         state: directory
         mode: '0755'
       tags:
@@ -117,7 +120,7 @@
 
     - name: Create VNC xstartup file
       copy:
-        dest: /root/.vnc/xstartup
+        dest: /root/.config/tigervnc/xstartup
         content: |
           exec startxfce4
         owner: root
@@ -126,9 +129,9 @@
       tags:
         - cloud
 
-    - name: Check if /root/.vnc/passwd exists
+    - name: Check if /root/.config/tigervnc/passwd exists
       stat:
-        path: "/root/.vnc/passwd"
+        path: "/root/.config/tigervnc/passwd"
       register: vnc_passwd
       tags:
         - cloud
@@ -143,7 +146,7 @@
         - cloud
 
     - name: Set VNC server password
-      command: bash -c "echo '{{ vnc_password }}' | vncpasswd -f > /root/.vnc/passwd && chmod 600 /root/.vnc/passwd"
+      command: bash -c "echo '{{ vnc_password }}' | vncpasswd -f > /root/.config/tigervnc/passwd && chmod 600 /root/.config/tigervnc/passwd"
       when: not vnc_passwd.stat.exists
       tags:
         - cloud
