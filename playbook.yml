@@ -23,6 +23,7 @@
       - john
       - jq
       - metasploit-framework
+      - neovim
       - netexec
       - nmap
       - nuclei
@@ -129,6 +130,25 @@
         src: "/tmp/helix-{{ helix_version.stdout }}-x86_64-linux/hx"
         dest: /usr/bin/hx
         state: link
+      register: helix_installed
+
+    - name: Ensure /root/.config/helix
+      when: helix_installed
+      file: 
+        path: /root/.config/helix
+        state: directory
+
+    - name: Configure helix
+      when: helix_installed
+      copy: 
+        dest: /root/.config/helix/config.toml
+        content: |
+            theme = "term16_dark"
+
+            [editor.cursor-shape]
+            insert = "bar"
+            normal = "block"
+            select = "underline"
 
     - name: Unarchive rockyou.txt
       unarchive:
