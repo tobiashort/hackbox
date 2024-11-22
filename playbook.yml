@@ -100,6 +100,7 @@
         remote_src: yes
         src: /tmp/zellij
         dest: /usr/bin/
+        mode: '0755'
 
     - name: Find latest helix version
       shell:
@@ -199,7 +200,7 @@
         - cloud
 
     - name: Set VNC server password
-      shell: echo -n '{{ vnc_password.user_input }}' | tee /root/passwd | vncpasswd -f > /root/.config/tigervnc/passwd && chmod 600 /root/.config/tigervnc/passwd
+      shell: echo -n '{{ vnc_password.user_input }}' | vncpasswd -f > /root/.config/tigervnc/passwd && chmod 600 /root/.config/tigervnc/passwd
       when: not vnc_passwd.stat.exists
       tags:
         - cloud
