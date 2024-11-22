@@ -9,15 +9,19 @@
 
   vars:
 
+    ansible_python_interpreter: /usr/bin/python3
+
     tools_apt_packages:
       - autorecon
       - binwalk
       - burpsuite
       - cadaver
+      - curl
       - davtest
       - hydra
       - impacket-scripts
       - john
+      - jq
       - metasploit-framework
       - netexec
       - nmap
@@ -75,6 +79,55 @@
       loop: "{{ tools_pipx_packages }}"
       tags:
         - tools
+
+    - name: Download zellij
+      get_url:
+        url: https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-unknown-linux-musl.tar.gz
+        dest: /tmp/
+      register: zellij_downloaded
+
+    - name: Extract zellij
+      when: zellij_downloaded
+      unarchive:
+        remote_src: yes
+        src: /tmp/zellij-x86_64-unknown-linux-musl.tar.gz
+        dest: /tmp/
+      register: zellij_extracted
+
+    - name: Install zellij
+      when: zellij_extracted
+      copy:
+        remote_src: yes
+        src: /tmp/zellij
+        dest: /usr/bin/
+
+    - name: Find latest helix version
+      shell:
+        curl -s https://api.github.com/repos/helix-editor/helix/releases/latest | jq -r '.name'
+      changed_when: false
+      register: helix_version
+
+    - name: Download helix
+      when: helix_version
+      get_url:
+        url: "https://github.com/helix-editor/helix/releases/latest/download/helix-{{ helix_version.stdout }}-x86_64-linux.tar.xz"
+        dest: /tmp/
+      register: helix_downloaded
+
+    - name: Extract helix
+      when: helix_downloaded
+      unarchive:
+        remote_src: yes
+        src: "/tmp/helix-{{ helix_version.stdout }}-x86_64-linux.tar.xz"
+        dest: /opt/
+      register: helix_extracted
+
+    - name: Install helix
+      when: helix_extracted
+      file:
+        src: "/tmp/helix-{{ helix_version.stdout }}-x86_64-linux/hx"
+        dest: /usr/bin/hx
+        state: link
 
     - name: Unarchive rockyou.txt
       unarchive:
