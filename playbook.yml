@@ -33,10 +33,12 @@
       - python3-venv
       - responder
       - exploitdb
+      - ripgrep
       - smbmap
       - sqlmap
       - wireshark
       - wordlists
+      - xclip
 
     tools_pipx_packages:
       - pypykatz
@@ -63,7 +65,7 @@
       tags:
         - desktop
         
-    - name: Install tools apt packages
+    - name: Install tools via apt
       apt:
         name: "{{ item }}"
         state: latest
@@ -71,7 +73,7 @@
       tags:
         - tools
 
-    - name: Install tools pipx packages
+    - name: Install tools via pipx
       community.general.pipx:
         executable: /usr/bin/pipx
         global: true
@@ -102,6 +104,24 @@
         src: /tmp/zellij
         dest: /usr/bin/
         mode: '0755'
+      register: zellij_installed
+
+    - name: Ensure /root/.config/zellij
+      when: zellij_installed
+      file:
+        path: /root/.config/zellij
+        state: directory
+
+    - name: Dump zellij config
+      when: zellij_installed
+      shell: zellij setup --dump-config > /root/.config/zellij/config.kdl
+
+    - name: Configure zellij - Copy with xclip
+      when: zellij_installed
+      replace:
+        path: /root/.config/zellij/config.kdl
+        regexp: '// copy_command "xclip'
+        replace: 'copy_command "xclip'
 
     - name: Find latest helix version
       shell:
@@ -127,7 +147,7 @@
     - name: Install helix
       when: helix_extracted
       file:
-        src: "/tmp/helix-{{ helix_version.stdout }}-x86_64-linux/hx"
+        src: "/opt/helix-{{ helix_version.stdout }}-x86_64-linux/hx"
         dest: /usr/bin/hx
         state: link
       register: helix_installed
