@@ -83,13 +83,13 @@
       tags:
         - tools
 
-    - name: Download zellij
+    - name: Download Zellij
       get_url:
         url: https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-unknown-linux-musl.tar.gz
         dest: /tmp/
       register: zellij_downloaded
 
-    - name: Extract zellij
+    - name: Extract Zellij
       when: zellij_downloaded
       unarchive:
         remote_src: yes
@@ -97,7 +97,7 @@
         dest: /tmp/
       register: zellij_extracted
 
-    - name: Install zellij
+    - name: Install Zellij
       when: zellij_extracted
       copy:
         remote_src: yes
@@ -112,31 +112,52 @@
         path: /root/.config/zellij
         state: directory
 
-    - name: Dump zellij config
-      when: zellij_installed
+    - name: Check if /root/.config/zellij/config.kdl exists
+      stat:
+        path: "/root/.config/zellij/config.kdl"
+      register: zellij_config
+      tags:
+        - cloud
+
+    - name: Dump Zellij config
+      when: not zellij_config.stat.exists
       shell: zellij setup --dump-config > /root/.config/zellij/config.kdl
 
-    - name: Configure zellij - Copy with xclip
+    - name: Configure Zellij - copy with xclip
       when: zellij_installed
       replace:
         path: /root/.config/zellij/config.kdl
         regexp: '// copy_command "xclip'
         replace: 'copy_command "xclip'
 
-    - name: Find latest helix version
+    - name: Zellij / QTerminal compatibility - ensure /root/.config/qterminal.org
+      when: zellij_installed
+      file:
+        state: directory
+        path: /root/.config/qterminal.org
+
+    - name: Zellij / QTerminal compatibility - set 'emulation' to 'linux'
+      when: zellij_installed
+      copy:
+        dest: /root/.config/qterminal.org/qterminal.ini
+        content: |
+          [General]
+          emulation=linux
+
+    - name: Find latest Helix version
       shell:
         curl -s https://api.github.com/repos/helix-editor/helix/releases/latest | jq -r '.name'
       changed_when: false
       register: helix_version
 
-    - name: Download helix
+    - name: Download Helix
       when: helix_version
       get_url:
         url: "https://github.com/helix-editor/helix/releases/latest/download/helix-{{ helix_version.stdout }}-x86_64-linux.tar.xz"
         dest: /tmp/
       register: helix_downloaded
 
-    - name: Extract helix
+    - name: Extract Helix
       when: helix_downloaded
       unarchive:
         remote_src: yes
@@ -144,7 +165,7 @@
         dest: /opt/
       register: helix_extracted
 
-    - name: Install helix
+    - name: Install Helix
       when: helix_extracted
       file:
         src: "/opt/helix-{{ helix_version.stdout }}-x86_64-linux/hx"
@@ -158,7 +179,7 @@
         path: /root/.config/helix
         state: directory
 
-    - name: Configure helix
+    - name: Configure Helix
       when: helix_installed
       copy: 
         dest: /root/.config/helix/config.toml
