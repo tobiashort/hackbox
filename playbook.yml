@@ -116,8 +116,6 @@
       stat:
         path: "/root/.config/zellij/config.kdl"
       register: zellij_config
-      tags:
-        - cloud
 
     - name: Dump Zellij config
       when: not zellij_config.stat.exists
@@ -136,8 +134,14 @@
         state: directory
         path: /root/.config/qterminal.org
 
-    - name: Zellij / QTerminal compatibility - set 'emulation' to 'linux'
+    - name: Zellij / QTerminal compatibility - check /root/.config/qterminal.org/qterminal.ini
       when: zellij_installed
+      stat:
+        path: /root/.config/qterminal.org/qterminal.ini
+      register: qterminal_config
+    
+    - name: Zellij / QTerminal compatibility - set 'emulation' to 'linux'
+      when: not qterminal_config.stat.exists
       copy:
         dest: /root/.config/qterminal.org/qterminal.ini
         content: |
