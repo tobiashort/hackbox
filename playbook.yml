@@ -199,7 +199,8 @@
     - name: Change shell to fish
       user:
         name: root
-        shell: /usr/bin/fish        
+        shell: /usr/bin/fish
+      register: fish_set_as_default
 
     - name: Configure fish
       copy:
@@ -244,6 +245,9 @@
           end
           
           set -x EDITOR hx
+
+    - name: Reset connection
+      meta: reset_connection
 
     - name: Unarchive rockyou.txt
       unarchive:
