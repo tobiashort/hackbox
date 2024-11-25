@@ -50,29 +50,21 @@
       apt:
         update_cache: yes
         upgrade: full
-      tags:
-        - system
 
     - name: Remove unnecessary packages
       apt:
         autoremove: yes
-      tags:
-        - system
 
     - name: Install desktop
       apt:
         name: kali-desktop-xfce
         state: latest
-      tags:
-        - desktop
         
     - name: Install tools via apt
       apt:
         name: "{{ item }}"
         state: latest
       loop: "{{ tools_apt_packages }}"
-      tags:
-        - tools
 
     - name: Install tools via pipx
       community.general.pipx:
@@ -81,8 +73,6 @@
         state: latest
         name: "{{ item }}"
       loop: "{{ tools_pipx_packages }}"
-      tags:
-        - tools
 
     - name: Download Zellij
       get_url:
@@ -254,8 +244,9 @@
         src: /usr/share/seclists/Passwords/Leaked-Databases/rockyou.txt.tar.gz
         dest: /usr/share/seclists/Passwords/Leaked-Databases/
         remote_src: yes
-      tags:
-        - tools
+
+    - name: Run updatedb
+      shell: updatedb
 
     - name: Install VNC
       apt:
