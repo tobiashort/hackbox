@@ -78,27 +78,21 @@
       get_url:
         url: https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-unknown-linux-musl.tar.gz
         dest: /tmp/
-      register: zellij_downloaded
 
     - name: Extract Zellij
-      when: zellij_downloaded
       unarchive:
         remote_src: yes
         src: /tmp/zellij-x86_64-unknown-linux-musl.tar.gz
         dest: /tmp/
-      register: zellij_extracted
 
     - name: Install Zellij
-      when: zellij_extracted
       copy:
         remote_src: yes
         src: /tmp/zellij
         dest: /usr/bin/
         mode: '0755'
-      register: zellij_installed
 
     - name: Ensure /root/.config/zellij
-      when: zellij_installed
       file:
         path: /root/.config/zellij
         state: directory
@@ -113,20 +107,17 @@
       shell: zellij setup --dump-config > /root/.config/zellij/config.kdl
 
     - name: Configure Zellij - copy with xclip
-      when: zellij_installed
       replace:
         path: /root/.config/zellij/config.kdl
         regexp: '// copy_command "xclip'
         replace: 'copy_command "xclip'
 
     - name: Zellij / QTerminal compatibility - ensure /root/.config/qterminal.org
-      when: zellij_installed
       file:
         state: directory
         path: /root/.config/qterminal.org
 
     - name: Zellij / QTerminal compatibility - check /root/.config/qterminal.org/qterminal.ini
-      when: zellij_installed
       stat:
         path: /root/.config/qterminal.org/qterminal.ini
       register: qterminal_config
@@ -146,36 +137,28 @@
       register: helix_version
 
     - name: Download Helix
-      when: helix_version
       get_url:
         url: "https://github.com/helix-editor/helix/releases/latest/download/helix-{{ helix_version.stdout }}-x86_64-linux.tar.xz"
         dest: /tmp/
-      register: helix_downloaded
 
     - name: Extract Helix
-      when: helix_downloaded
       unarchive:
         remote_src: yes
         src: "/tmp/helix-{{ helix_version.stdout }}-x86_64-linux.tar.xz"
         dest: /opt/
-      register: helix_extracted
 
     - name: Install Helix
-      when: helix_extracted
       file:
         src: "/opt/helix-{{ helix_version.stdout }}-x86_64-linux/hx"
         dest: /usr/bin/hx
         state: link
-      register: helix_installed
 
     - name: Ensure /root/.config/helix
-      when: helix_installed
       file: 
         path: /root/.config/helix
         state: directory
 
     - name: Configure Helix
-      when: helix_installed
       copy: 
         dest: /root/.config/helix/config.toml
         content: |
@@ -190,7 +173,6 @@
       user:
         name: root
         shell: /usr/bin/fish
-      register: fish_set_as_default
 
     - name: Configure fish
       copy:
