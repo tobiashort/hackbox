@@ -18,6 +18,7 @@
       - cadaver
       - curl
       - davtest
+      - fish
       - hydra
       - impacket-scripts
       - john
@@ -194,6 +195,55 @@
             insert = "bar"
             normal = "block"
             select = "underline"
+
+    - name: Change shell to fish
+      user:
+        name: root
+        shell: /usr/bin/fish        
+
+    - name: Configure fish
+      copy:
+        dest: /etc/fish/config.fish
+        content: |
+          set fish_greeting
+          
+          function fish_prompt
+              set -g __fish_git_prompt_showdirtystate 1
+              set -g __fish_git_prompt_showuntrackedfiles 1
+              set -g __fish_git_prompt_showstashstate 1
+              set -g __fish_git_prompt_showupstream auto
+              set -l symbol ' $ '
+              if fish_is_root_user
+                  set symbol ' # '
+              end
+              echo -n $USER@$hostname
+              echo -n (prompt_pwd)
+              echo -n (fish_git_prompt)
+              echo -n $symbol
+          end
+          
+          fish_vi_key_bindings
+          set fish_cursor_default block
+          set fish_cursor_insert line
+          set fish_cursor_replace_one underscore
+          set fish_cursor_visual block
+          set fish_vi_force_cursor 1
+          
+          function fish_title
+              set -q argv[1]; or set argv fish: (fish_prompt_pwd_dir_length=1 prompt_pwd)
+                   echo $argv
+          end
+          
+          function pbcopy
+              xclip -in -selection clipboard
+              xclip -out -selection clipboard | xclip -in -selection primary
+          end
+          
+          function pbpaste
+              xclip -out -selection clipboard
+          end
+          
+          set -x EDITOR hx
 
     - name: Unarchive rockyou.txt
       unarchive:
