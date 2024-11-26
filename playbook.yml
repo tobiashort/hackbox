@@ -19,6 +19,7 @@
       - curl
       - davtest
       - fish
+      - fzf
       - hydra
       - impacket-scripts
       - john
@@ -215,6 +216,8 @@
           function pbpaste
               xclip -out -selection clipboard
           end
+
+          fzf --fish | source
           
           set -x EDITOR hx
 
