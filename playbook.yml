@@ -233,6 +233,9 @@
     - name: Run updatedb
       shell: updatedb
 
+    - name: Set default application for text files
+      shell: xdg-mime default org.xfce.mousepad.desktop text/plain
+
     - name: Install VNC
       apt:
         name: "{{ item }}"
