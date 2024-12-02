@@ -72,11 +72,6 @@
       apt:
         autoremove: yes
 
-    - name: Install desktop
-      apt:
-        name: kali-desktop-xfce
-        state: latest
-        
     - name: Install tools via apt
       apt:
         name: "{{ item }}"
@@ -90,6 +85,11 @@
         state: latest
         name: "{{ item }}"
       loop: "{{ tools_pipx_packages }}"
+
+    - name: Install desktop
+      apt:
+        name: kali-desktop-xfce
+        state: latest
 
     - name: Download Zellij
       get_url:
