@@ -41,6 +41,7 @@
       - wireshark
       - wordlists
       - xclip
+      - zbar-tools
 
     tools_pipx_packages:
       - pypykatz
