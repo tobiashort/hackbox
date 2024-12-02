@@ -18,31 +18,46 @@
       - cadaver
       - curl
       - davtest
+      - dnsrecon
+      - enum4linux
+      - exploitdb
+      - feroxbuster
       - fish
       - fzf
+      - gobuster
       - hydra
       - impacket-scripts
       - john
       - jq
       - metasploit-framework
+      - nbtscan
       - neovim
       - netexec
+      - nikto
       - nmap
       - nuclei
+      - onesixtyone
       - openvpn
+      - oscanner
       - pipx
       - python-is-python3
       - python3-venv
+      - redis-tools
       - responder
-      - exploitdb
       - ripgrep
+      - sipvicious
+      - smbclient
       - smbmap
+      - snmpcheck
       - sqlmap
+      - sslscan
+      - tnscmd10g
+      - whatweb
       - wireshark
+      - wkhtmltopdf
       - wordlists
       - xclip
       - zbar-tools
-
     tools_pipx_packages:
       - pypykatz
       - wesng
