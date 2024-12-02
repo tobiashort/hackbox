@@ -52,12 +52,14 @@
       - sqlmap
       - sslscan
       - tnscmd10g
+      - webshells
       - whatweb
       - wireshark
       - wkhtmltopdf
       - wordlists
       - xclip
       - zbar-tools
+
     tools_pipx_packages:
       - pypykatz
       - wesng
