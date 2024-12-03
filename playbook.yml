@@ -19,6 +19,7 @@
       - curl
       - davtest
       - dnsrecon
+      - dotdotpwn
       - enum4linux
       - exploitdb
       - feroxbuster
