@@ -91,6 +91,16 @@
         name: "{{ item }}"
       loop: "{{ tools_pipx_packages }}"
 
+    - name: Update th-tools installer
+      git:
+        repo: "https://github.com/tobiashort/th-tools"
+        dest: /opt/th-tools-installer
+      register: th_tools_installer
+
+    - name: Install th-tools
+      when: th_tools_installer.changed
+      shell: /opt/th-tools-installer/install.sh
+
     - name: Install desktop
       apt:
         name: kali-desktop-xfce
