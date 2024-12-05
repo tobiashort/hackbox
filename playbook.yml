@@ -26,6 +26,7 @@
       - fish
       - fzf
       - gobuster
+      - gowitness
       - hydra
       - impacket-scripts
       - john
