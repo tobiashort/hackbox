@@ -25,6 +25,7 @@
       - feroxbuster
       - fish
       - fzf
+      - golang
       - gobuster
       - gowitness
       - hydra
@@ -252,6 +253,10 @@
           fzf --fish | source
           
           set -x EDITOR hx
+          set -x GOPATH $HOME/.go
+
+          fish_add_path /opt/th-tools/bin
+          fish_add_path $GOPATH/bin
 
     - name: Reset connection
       meta: reset_connection
