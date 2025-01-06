@@ -93,6 +93,12 @@
         name: "{{ item }}"
       loop: "{{ tools_pipx_packages }}"
 
+    - name: Install namemash.py
+      get_url:
+        url: "https://gist.githubusercontent.com/superkojiman/11076951/raw/74f3de7740acb197ecfa8340d07d3926a95e5d46/namemash.py"
+        dest: "/usr/bin/namemash"
+        mode: "0755"
+
     - name: Update th-tools installer
       git:
         repo: "https://github.com/tobiashort/th-tools"
